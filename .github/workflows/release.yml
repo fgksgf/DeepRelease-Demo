@@ -1,4 +1,4 @@
-name: name: Release
+name: Release
 
 # This job will only be triggered when a tag is pushed.
 on:
