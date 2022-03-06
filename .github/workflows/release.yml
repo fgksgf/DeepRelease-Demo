@@ -20,3 +20,12 @@ jobs:
 
       - name: Check the file
         run: cat release-notes.md
+      
+      - name: Generate the release notes
+        uses: fgksgf/DeepRelease@master
+        with:
+          repo: 'apache/skywalking'
+          debug: 'True'
+
+      - name: Check the file
+        run: cat release-notes.md
