@@ -1,31 +1,44 @@
-name: Release
+name: Generate Release Notes
 
-# This job will only be triggered when a tag is pushed.
 on:
-  push:
-    tags:
-    - '*'
-    branches:
-    - master
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: '<owner>/<repository>'
+        required: True
+      debug:
+        description: 'Enable debug mode, `True` or `False`'
+        requied: false
+        default: 'False'
 
 jobs:
-  release:
+  generate:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+
       - name: Generate the release notes
         uses: fgksgf/DeepRelease@master
         with:
-          repo: 'apache/skywalking-python'
-          debug: 'True'
+          repo: ${{ github.event.inputs.repo }}
+          token: ${{ github.token }}
 
       - name: Check the file
         run: cat release-notes.md
       
-      - name: Generate the release notes
-        uses: fgksgf/DeepRelease@master
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v3
         with:
-          repo: 'apache/skywalking'
-          debug: 'True'
-
-      - name: Check the file
-        run: cat release-notes.md
+          token: ${{ github.token }}
+          commit-message: release
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          signoff: false
+          branch-suffix: timestamp 
+          delete-branch: true
+          assignees: ${{ github.actor }}
+          title: 'Generate the release notes for ${{ github.event.inputs.repo }}'
+          body: 'None'
+          labels: |
+            automated
